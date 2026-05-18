@@ -1,30 +1,34 @@
-import React from "react";
+import  {useState} from "react";
 
-function ToyForm() {
-
-const [newToy, setNewToy] = useState({})
-  
-  function handleSubmit(event) {
-  event.preventDefault();
+function ToyForm({onAddToy}) {
+  const [formData, setFormData] = useState({name: "", image: ""})
+  function handleChange(event){
+    setFormData({...formData, [event.target.name]: event.target.value})
   }
-  const newToy ={
-    name: "name",
-    image: "image",
-    likes: 0
+
+  async function handleSubmit (event) {
+    event.preventDefault()
+    const response = await fetch ("http://localhost:3001/toys", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify ({...formData, likes:0})
+    })
+
+    const newToy = await response .json()
+    onAddToy(newToy)
+    setFormData ({name:"", image: ""})
   }
   return (
     <div className="container">
-      <form className="add-toy-form"
-        onSubmit={handleSubmit}
-        data-testid="add-toy-form">
+      <form className="add-toy-form" onSubmit={handleSubmit}>
         <h3>Create a toy!</h3>
         <input
           type="text"
           name="name"
           placeholder="Enter a toy's name..."
           className="input-text"
-          value={newToy.name}
-          onChange={(event) => setNewToy({...newToy, name: event.target.value})}
+          value={formData.name}
+          onChange = {handleChange}
         />
         <br />
         <input
@@ -32,8 +36,8 @@ const [newToy, setNewToy] = useState({})
           name="image"
           placeholder="Enter a toy's image URL..."
           className="input-text"
-          value={newToy.image}
-          onChange={(event) => setNewToy({...newToy, image: event.target.value})}
+          value = {formData.image}
+          onChange = {handleChange}
         />
         <br />
         <input
